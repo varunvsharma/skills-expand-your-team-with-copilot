@@ -552,6 +552,24 @@ document.addEventListener("DOMContentLoaded", () => {
             .join("")}
         </ul>
       </div>
+      <div class="social-share-container">
+        <button class="share-button twitter tooltip" data-activity="${name}" title="Share on Twitter">
+          𝕏
+          <span class="tooltip-text">Share on Twitter</span>
+        </button>
+        <button class="share-button facebook tooltip" data-activity="${name}" title="Share on Facebook">
+          f
+          <span class="tooltip-text">Share on Facebook</span>
+        </button>
+        <button class="share-button linkedin tooltip" data-activity="${name}" title="Share on LinkedIn">
+          in
+          <span class="tooltip-text">Share on LinkedIn</span>
+        </button>
+        <button class="share-button email tooltip" data-activity="${name}" title="Share via Email">
+          ✉
+          <span class="tooltip-text">Share via Email</span>
+        </button>
+      </div>
       <div class="activity-card-actions">
         ${
           currentUser
@@ -575,6 +593,32 @@ document.addEventListener("DOMContentLoaded", () => {
     const deleteButtons = activityCard.querySelectorAll(".delete-participant");
     deleteButtons.forEach((button) => {
       button.addEventListener("click", handleUnregister);
+    });
+
+    // Add click handlers for social sharing buttons
+    const twitterButton = activityCard.querySelector(".share-button.twitter");
+    const facebookButton = activityCard.querySelector(".share-button.facebook");
+    const linkedinButton = activityCard.querySelector(".share-button.linkedin");
+    const emailButton = activityCard.querySelector(".share-button.email");
+
+    twitterButton.addEventListener("click", (e) => {
+      e.preventDefault();
+      window.socialSharing.shareOnTwitter(name, details.description, formattedSchedule);
+    });
+
+    facebookButton.addEventListener("click", (e) => {
+      e.preventDefault();
+      window.socialSharing.shareOnFacebook(name);
+    });
+
+    linkedinButton.addEventListener("click", (e) => {
+      e.preventDefault();
+      window.socialSharing.shareOnLinkedIn(name, details.description);
+    });
+
+    emailButton.addEventListener("click", (e) => {
+      e.preventDefault();
+      window.socialSharing.shareViaEmail(name, details.description, formattedSchedule);
     });
 
     // Add click handler for register button (only when authenticated)
@@ -854,6 +898,41 @@ document.addEventListener("DOMContentLoaded", () => {
       console.error("Error signing up:", error);
     }
   });
+
+  // Social sharing functions
+  function shareOnTwitter(activityName, description, schedule) {
+    const text = `Check out ${activityName} at Mergington High School! ${description}`;
+    const url = window.location.href;
+    const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`;
+    window.open(twitterUrl, '_blank', 'width=600,height=400');
+  }
+
+  function shareOnFacebook(activityName) {
+    const url = window.location.href;
+    const facebookUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`;
+    window.open(facebookUrl, '_blank', 'width=600,height=400');
+  }
+
+  function shareOnLinkedIn(activityName, description) {
+    const url = window.location.href;
+    const linkedInUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}`;
+    window.open(linkedInUrl, '_blank', 'width=600,height=400');
+  }
+
+  function shareViaEmail(activityName, description, schedule) {
+    const subject = `Check out ${activityName} at Mergington High School`;
+    const body = `Hi!\n\nI wanted to share this activity with you:\n\n${activityName}\n${description}\n\nSchedule: ${schedule}\n\nCheck it out at: ${window.location.href}`;
+    const mailtoUrl = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    window.location.href = mailtoUrl;
+  }
+
+  // Expose sharing functions to window
+  window.socialSharing = {
+    shareOnTwitter,
+    shareOnFacebook,
+    shareOnLinkedIn,
+    shareViaEmail,
+  };
 
   // Expose filter functions to window for future UI control
   window.activityFilters = {
